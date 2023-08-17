@@ -44,7 +44,7 @@ def split_file_by_size(source_filepath, dest_folder, split_file_prefix, size_per
 
 if __name__ == "__main__":
     while True:
-        file_name = input("Enter the complete filename (with .csv or .txt extension) to split : ") # It should be in the current directory
+        file_name = input("Enter the complete filename (including .csv or .txt extension) to split : ") # It should be in the current directory
         full_path = os.path.join(os.getcwd(), file_name)
         
         # Check if file exists and if it has a valid extension
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         except ValueError:
             print("Please enter a valid number for the size.")
             continue
-# if you want the top of the file(name of columns) to be included  in each file, write yes ; if there are no column names , write no
+      # if you want the top of the file(name of columns) to be included  in each file, write yes ; if there are no column names , write no
         keep_header_input = input("Do you want to keep the header in each split file? (yes/no): ").lower()
         keep_header = keep_header_input.startswith('y')
 

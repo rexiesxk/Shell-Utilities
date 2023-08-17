@@ -1,7 +1,7 @@
 
 # Shell-Utilities
 
-This repository consists of tutorials, resources , utility shell scripts and command snippets for linux users.
+This repository consists of tutorials, resources , python,perl and shell scripts and command snippets for building system utilities.
 
 
 ## List of  Utilities 

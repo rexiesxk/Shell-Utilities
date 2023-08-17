@@ -3,4 +3,4 @@
 
 ## 1. splitter_large.py : This python script splits huge text files into smaller size as per user input.
    The original text file and the script should be in the same directory.
-   The output is created into a new directory, "splitfiles", and directory is created.  
+   The output is redirected into a new directory, "splitfiles", and directory is created if not present.  

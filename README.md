@@ -22,7 +22,9 @@ Each of them can be used independently as per requirement.
 
   [list1.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/list1.py)
 
-      This program list the name of all the folders in the current directory and redirects the output in a text file namesd 'list.txt' 
+      This program list the name of all the folders in the current directory 
+      
+      and redirects the output in a text file namesd 'list.txt' 
 
       It handles almost all the foreign languages 'characters. Let me know if you face any encoding error.
   

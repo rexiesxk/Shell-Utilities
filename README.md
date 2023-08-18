@@ -38,3 +38,12 @@ Each of them can be used independently as per requirement.
       
       If any original folder is empty, it saves their names to list2.txt
 
+   [SeqRenamer.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/SeqRenamer.py)
+
+    This file renames the files in the current directory sequentially.
+
+    First it sorts the files alphabetically, time modified or size based on user input.
+
+    Then it renames the files taking the  base name of  top sorted file as first file.
+      
+

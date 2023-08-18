@@ -3,6 +3,11 @@
 
 This repository consists of tutorials, resources , python,perl and shell scripts and command snippets for building system utilities.
 
+## CAUTION : Always make a backup copy of your files and folders before running the scripts. 
+### While using renamers make sure you're not renaming any essential system or program files and folders.
+### Renamer scripts ashould be used to avoid mundane redundancy where the name or order of the file is not that significant.
+### Never run these scripts in the root folder or top hierarchial folder of your drive. 
+### Copy the script in the desired folder and run with cmd/shell or any ide.
 
 ## List of  Utilities 
 
@@ -32,9 +37,9 @@ Each of them can be used independently as per requirement.
 
       This programs lists all the names of folders in a directoy, 
       
-      then copies all the files from original directory to new directories with _test and -train appended to them, 
+      then copies all the files from original directory to new directories with _test and _train appended to them, 
 
-      then it renames the filesin newly created folders as per new folder names and preserves the extension. 
+      then it renames the files in newly created folders as per new folder names and preserves the extension. 
       
       If any original folder is empty, it saves their names to list2.txt
 

@@ -14,7 +14,7 @@ The original text file and the script should be in the same directory.
 
 The output is redirected into a new directory, "splitfiles", and directory is created if not present.
 
-2. [Renamer](https://github.com/rexiesxk/Shell-Utilities/tree/main/Renamers)
+2. [Renamers](https://github.com/rexiesxk/Shell-Utilities/tree/main/Renamers)
 
 This folder contains a few bulk-renamer and lister scripts.
 

@@ -5,7 +5,7 @@ This repository consists of tutorials, resources , python,perl and shell scripts
 
 ## CAUTION : Always make a backup copy of your files and folders before running the scripts. 
 ### While using renamers make sure you're not renaming any essential system or program files and folders.
-### Renamer scripts ashould be used to avoid mundane redundancy where the name or order of the file is not that significant.
+### Renamer scripts should be used to avoid mundane redundancy where the name or order of the file is not that significant.
 ### Never run these scripts in the root folder or top hierarchial folder of your drive. 
 ### Copy the script in the desired folder and run with cmd/shell or any ide.
 

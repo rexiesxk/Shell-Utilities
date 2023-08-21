@@ -50,5 +50,16 @@ Each of them can be used independently as per requirement.
     First it sorts the files alphabetically, time modified or size based on user input.
 
     Then it renames the files taking the  base name of  top sorted file as first file.
+
+  - [searchist.py](https://github.com/rexiesxk/Utilities/blob/main/Search_Sort_Split/searchist.py)
+     This script sort outs scraped or downloaded data containing mixed filetypes
+
+     and moves them into respective folders.
+    
+     It also cleans up long and invalid names. It creates directories for filetypes
+    
+     and lists out contents of the folders respectively. 
+
+     Use Sudo in linux or Run powershell or ide as administrator to execute the script
       
 

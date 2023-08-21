@@ -2,12 +2,12 @@
 """
 Created on Sun Aug 20 15:12:56 2023
 This script is in continuation of searchist.py for scraped data.
-But it can be used independently. Rename the folders and parameters accordingly.
+But it can be used independently. Beed to Rename and change the folders and parameters accordingly.
 It splits text , spreadsheets and database files  treating each of them as tabular textfile.
 It is still in developmental phase. Use it with caution. 
 It can result in unexpected behavior, errors and corruption of data.
 Make a backup of original folders and initially try on small set of data.
-##UNDER DEVELOPMENT DO NOT USE
+UNDER DEVELOPMENT. DO NOT USE On LINUX
 @author: Rexie
 """
 

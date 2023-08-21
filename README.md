@@ -25,7 +25,7 @@ This folder contains a few bulk-renamer and lister scripts.
 
 Each of them can be used independently as per requirement.
 
-  [list1.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/list1.py)
+  - [list1.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/list1.py)
 
       This program list the name of all the folders in the current directory 
       
@@ -33,7 +33,7 @@ Each of them can be used independently as per requirement.
 
       It handles almost all the foreign languages 'characters. Let me know if you face any encoding error.
   
-   [list2.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/list2.py)
+   - [list2.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/list2.py)
 
       This programs lists all the names of folders in a directoy, 
       
@@ -43,7 +43,7 @@ Each of them can be used independently as per requirement.
       
       If any original folder is empty, it saves their names to list2.txt
 
-   [SeqRenamer.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/SeqRenamer.py)
+  - [SeqRenamer.py](https://github.com/rexiesxk/Shell-Utilities/blob/main/Renamers/SeqRenamer.py)
 
     This file renames the files in the current directory sequentially.
 

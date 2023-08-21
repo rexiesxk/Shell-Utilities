@@ -29,7 +29,7 @@ Each of them can be used independently as per requirement.
 
       This program list the name of all the folders in the current directory 
       
-      and redirects the output in a text file namesd 'list.txt' 
+      and redirects the output in a text file named 'list.txt' 
 
       It handles almost all the foreign languages 'characters. Let me know if you face any encoding error.
   

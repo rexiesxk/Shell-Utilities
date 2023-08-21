@@ -7,6 +7,7 @@ It splits text , spreadsheets and database files  treating each of them as tabul
 It is still in developmental phase. Use it with caution. 
 It can result in unexpected behavior, errors and corruption of data.
 Make a backup of original folders and initially try on small set of data.
+##UNDER DEVELOPMENT DO NOT USE
 @author: Rexie
 """
 

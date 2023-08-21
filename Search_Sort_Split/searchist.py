@@ -41,7 +41,7 @@ def get_valid_filename(s):
     return s
 
 def move_files_by_type(base_path):
-    """Sort and move files by type. Comment out filetype you don't need for the task."""
+    """Sort and move files by type. Comment out filetype you don't need for the task or add new extensions and filetypes"""
     file_types = {
         'Images': ['.jpg', '.jpeg', '.png', '.tiff', '.webp', '.bmp', '.gif', '.ico', '.jfif', '.svg'],
         'Documents': ['.txt', '.doc', '.pdf', '.docx', '.djvu', '.odt', '.xls', '.xlsx', '.ppt', '.pptx'],

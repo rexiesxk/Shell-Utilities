@@ -62,5 +62,12 @@ Each of them can be used independently as per requirement.
      and lists out contents of the folders respectively. 
 
      Use Sudo in linux or Run powershell or ide as administrator to execute the script
+
+  - [ext_rename.py](https://github.com/rexiesxk/Utilities/blob/main/Renamers/ext_rename.py)
+
+     This renames all files in the curent directory to have new extension
+
+     For example .jpg to .png. Doesn't prompt for any system confirmation
+      
       
 

@@ -1,0 +1,127 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Aug 20 15:12:56 2023
+This script is in continuation of searchist.py for scraped data.
+But it can be used independently. Rename the folders and parameters accordingly.
+It splits text , spreadsheets and database files  treating each of them as tabular textfile.
+It is still in developmental phase. Use it with caution. 
+It can result in unexpected behavior, errors and corruption of data.
+Make a backup of original folders and initially try on small set of data.
+@author: Rexie
+"""
+
+import os
+import pandas as pd
+import pyodbc
+import shutil
+
+def split_text_file(filepath, base_output, desired_size, keep_header=True):
+    """Split a text file into smaller parts based on a desired size."""
+    filename = os.path.basename(filepath)
+    split_dir = os.path.join(base_output, f"split_{filename}")
+    os.makedirs(split_dir, exist_ok=True)
+
+    with open(filepath, 'r', encoding='utf-8') as file:
+        header = file.readline() if keep_header else ""
+        current_part = 1
+        output_file = os.path.join(split_dir, f"split_part_{current_part}.txt")
+        current_output = open(output_file, 'w', encoding='utf-8')
+
+        if keep_header:
+            current_output.write(header)
+
+        current_size = len(header.encode('utf-8'))
+        for line in file:
+            line_size = len(line.encode('utf-8'))
+            if current_size + line_size > desired_size:
+                current_output.close()
+                current_part += 1
+                output_file = os.path.join(split_dir, f"split_part_{current_part}.txt")
+                current_output = open(output_file, 'w', encoding='utf-8')
+                if keep_header:
+                    current_output.write(header)
+                    current_size = len(header.encode('utf-8'))
+                else:
+                    current_size = 0
+
+            current_output.write(line)
+            current_size += line_size
+
+        current_output.close()
+
+def split_excel_file(filepath, base_output, row_limit):
+    """Split an Excel file into smaller files based on row_limit."""
+    filename = os.path.basename(filepath)
+    split_dir = os.path.join(base_output, f"split_{filename}")
+    os.makedirs(split_dir, exist_ok=True)
+
+    xls = pd.read_excel(filepath)
+    num_splits = len(xls) // row_limit + (1 if len(xls) % row_limit != 0 else 0)
+    for i in range(num_splits):
+        output_file = os.path.join(split_dir, f"split_part_{i+1}.xlsx")
+        start_row = i * row_limit
+        end_row = start_row + row_limit
+        xls.iloc[start_row:end_row].to_excel(output_file, index=False)
+
+def mdb_to_csvs(filepath, output_dir):
+    """Extract tables from an MDB file and save them as CSV."""
+    conn_str = (
+        r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+        f'DBQ={filepath};'
+    )
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+
+    # Iterate through each table in the MDB and save it as a CSV
+    for table_info in cursor.tables(tableType='TABLE'):
+        table_name = table_info.table_name
+        query = f"SELECT * FROM [{table_name}]"
+        data = pd.read_sql(query, conn)
+        data.to_csv(os.path.join(output_dir, f"{table_name}.csv"), index=False)
+
+    cursor.close()
+    conn.close()
+
+def split_mdb_file(filepath, base_output, desired_size, keep_header=True):
+    """Split an MDB file's tables into CSVs and then split those CSVs."""
+    temp_dir = os.path.join(base_output, "temp_mdb_csvs")
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    mdb_to_csvs(filepath, temp_dir)
+    
+    for csv_file in os.listdir(temp_dir):
+        split_text_file(os.path.join(temp_dir, csv_file), base_output, desired_size, keep_header)
+    
+    shutil.rmtree(temp_dir)
+
+if __name__ == "__main__":
+    base_dir = os.path.dirname(os.path.realpath(__file__))
+
+    desired_size_str = input("Enter the desired size of split files in bytes (for text files): ")
+    desired_size = int(desired_size_str)
+
+    row_limit_str = input("Enter the maximum number of rows for each split Excel file: ")
+    row_limit = int(row_limit_str)
+
+    keep_header_str = input("Do you want to keep the file header in each split text file? (yes/no): ")
+    keep_header = keep_header_str.lower().startswith("y")
+
+    base_output_dir = os.path.join(base_dir, "splitfiles")
+    os.makedirs(base_output_dir, exist_ok=True)
+
+    for category in ['Documents', 'Databases']:
+        dir_path = os.path.join(base_dir, f"Sorted {category}")
+        if os.path.exists(dir_path):
+            for filename in os.listdir(dir_path):
+                filepath = os.path.join(dir_path, filename)
+                if os.path.isfile(filepath):
+                    ext = os.path.splitext(filename)[1].lower()
+                    if ext in ['.txt', '.csv']:
+                        split_text_file(filepath, base_output_dir, desired_size, keep_header)
+                    elif ext in ['.xls', '.xlsx']:
+                        split_excel_file(filepath, base_output_dir, row_limit)
+                    elif ext == '.mdb':
+                        split_mdb_file(filepath, base_output_dir, desired_size, keep_header)
+                    print(f"File '{filename}' split successfully. Check the {base_output_dir} directory.")
+        else:
+            print(f"Directory '{dir_path}' not found.")

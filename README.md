@@ -69,5 +69,9 @@ Each of them can be used independently as per requirement.
 
      For example .jpg to .png. Doesn't prompt for any system confirmation
       
-      
+  - [mdbSplitter.py](https://github.com/rexiesxk/Utilities/blob/main/Search_Sort_Split/mdbSplitter.py)
+
+    This script converts mdb files into csv files and splits the csv files
+
+    as per user input: size/number of lines. 
 

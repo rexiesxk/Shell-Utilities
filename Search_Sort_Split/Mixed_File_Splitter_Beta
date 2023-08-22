@@ -1,128 +1,142 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Aug 20 15:12:56 2023
-This script is in continuation of searchist.py for scraped data.
-But it can be used independently. Beed to Rename and change the folders and parameters accordingly.
-It splits text , spreadsheets and database files  treating each of them as tabular textfile.
-It is still in developmental phase. Use it with caution. 
-It can result in unexpected behavior, errors and corruption of data.
-Make a backup of original folders and initially try on small set of data.
-UNDER DEVELOPMENT. DO NOT USE On LINUX
+This script converts the mdb file into csv files and each extracted csv files
+is split as per the size/no. of lines. Once done it moves the original
+files and mdb files to a new folder in curent directory.
 @author: Rexie
 """
 
 import os
-import pandas as pd
+import csv
 import pyodbc
 import shutil
+import sys
 
-def split_text_file(filepath, base_output, desired_size, keep_header=True):
-    """Split a text file into smaller parts based on a desired size."""
-    filename = os.path.basename(filepath)
-    split_dir = os.path.join(base_output, f"split_{filename}")
-    os.makedirs(split_dir, exist_ok=True)
+def has_write_permission(directory):
+    test_file = os.path.join(directory, 'temp_test.txt')
+    try:
+        with open(test_file, 'w') as f:
+            f.write('test')
+        os.remove(test_file)
+        return True
+    except:
+        return False
 
-    with open(filepath, 'r', encoding='utf-8') as file:
-        header = file.readline() if keep_header else ""
-        current_part = 1
-        output_file = os.path.join(split_dir, f"split_part_{current_part}.txt")
-        current_output = open(output_file, 'w', encoding='utf-8')
-
-        if keep_header:
-            current_output.write(header)
-
-        current_size = len(header.encode('utf-8'))
-        for line in file:
-            line_size = len(line.encode('utf-8'))
-            if current_size + line_size > desired_size:
-                current_output.close()
-                current_part += 1
-                output_file = os.path.join(split_dir, f"split_part_{current_part}.txt")
-                current_output = open(output_file, 'w', encoding='utf-8')
-                if keep_header:
-                    current_output.write(header)
-                    current_size = len(header.encode('utf-8'))
-                else:
-                    current_size = 0
-
-            current_output.write(line)
-            current_size += line_size
-
-        current_output.close()
-
-def split_excel_file(filepath, base_output, row_limit):
-    """Split an Excel file into smaller files based on row_limit."""
-    filename = os.path.basename(filepath)
-    split_dir = os.path.join(base_output, f"split_{filename}")
-    os.makedirs(split_dir, exist_ok=True)
-
-    xls = pd.read_excel(filepath)
-    num_splits = len(xls) // row_limit + (1 if len(xls) % row_limit != 0 else 0)
-    for i in range(num_splits):
-        output_file = os.path.join(split_dir, f"split_part_{i+1}.xlsx")
-        start_row = i * row_limit
-        end_row = start_row + row_limit
-        xls.iloc[start_row:end_row].to_excel(output_file, index=False)
-
-def mdb_to_csvs(filepath, output_dir):
-    """Extract tables from an MDB file and save them as CSV."""
+def mdb_to_csv(mdb_path, output_folder):
+    # Connect to the MDB file using ODBC
     conn_str = (
         r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
-        f'DBQ={filepath};'
+        r'DBQ=' + mdb_path + ';'
     )
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
 
-    # Iterate through each table in the MDB and save it as a CSV
-    for table_info in cursor.tables(tableType='TABLE'):
-        table_name = table_info.table_name
-        query = f"SELECT * FROM [{table_name}]"
-        data = pd.read_sql(query, conn)
-        data.to_csv(os.path.join(output_dir, f"{table_name}.csv"), index=False)
+    # Get the list of tables in the MDB
+    table_list = [row.table_name for row in cursor.tables(tableType='TABLE')]
+
+    for table_name in table_list:
+        print(f"Converting {table_name} to CSV...")
+        
+        # Create CSV file for the table
+        csv_path = os.path.join(output_folder, table_name + '.csv')
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            
+            # Get columns
+            columns = [column.column_name for column in cursor.columns(table=table_name)]
+            csv_writer.writerow(columns)
+            
+            # Fetch rows from the table
+            cursor.execute(f"SELECT * FROM {table_name}")
+            for row in cursor.fetchall():
+                csv_writer.writerow(row)
 
     cursor.close()
     conn.close()
 
-def split_mdb_file(filepath, base_output, desired_size, keep_header=True):
-    """Split an MDB file's tables into CSVs and then split those CSVs."""
-    temp_dir = os.path.join(base_output, "temp_mdb_csvs")
-    os.makedirs(temp_dir, exist_ok=True)
+def split_csv(filename, delimiter=',', row_limit=None, size_limit=None, output_name_template='output_%s.csv'):
+    with open(filename, 'r', encoding='utf-8') as source:
+        reader = csv.reader(source, delimiter=delimiter)
+        headers = next(reader)
+        
+        current_piece = 1
+        current_out_path = output_name_template % current_piece
+        current_out_writer = csv.writer(open(current_out_path, 'w', encoding='utf-8'), delimiter=delimiter)
+        current_out_writer.writerow(headers)
+        
+        current_size = 0
+        current_rows = 0
+        for row in reader:
+            current_rows += 1
+            current_size += sum(len(s) for s in row)
+            
+            if (row_limit and current_rows > row_limit) or (size_limit and current_size > size_limit*1024):
+                current_piece += 1
+                current_out_path = output_name_template % current_piece
+                current_out_writer = csv.writer(open(current_out_path, 'w', encoding='utf-8'), delimiter=delimiter)
+                current_out_writer.writerow(headers)
+                current_size = 0
+                current_rows = 0
+                
+            current_out_writer.writerow(row)
+
+def main():
+    # Check platform
+    platform = sys.platform
+    if platform == 'win32':
+        print("Running on Windows.")
+    elif platform.startswith('linux'):
+        print("Running on Linux.")
+    else:
+        print(f"Running on {platform}.")
     
-    mdb_to_csvs(filepath, temp_dir)
+    current_directory = os.getcwd()
     
-    for csv_file in os.listdir(temp_dir):
-        split_text_file(os.path.join(temp_dir, csv_file), base_output, desired_size, keep_header)
+    # Check permissions
+    if not has_write_permission(current_directory):
+        print(f"No write permissions in {current_directory}. Please check your permissions.")
+        return
     
-    shutil.rmtree(temp_dir)
+    mdb_files = [file for file in os.listdir(current_directory) if file.endswith('.mdb')]
+    
+    # Ask user for splitting preference
+    choice = input("Do you want to split by size (enter 's') or by number of lines (enter 'l')? ")
+    if choice == 's':
+        size = int(input("Enter the maximum size (in KB) for each split file: "))
+    elif choice == 'l':
+        lines = int(input("Enter the maximum number of lines for each split file: "))
+    
+    for mdb_file in mdb_files:
+        print(f"Processing {mdb_file}...")
+        mdb_path = os.path.join(current_directory, mdb_file)
+        
+        # Check read permissions on mdb file
+        if not os.access(mdb_path, os.R_OK):
+            print(f"No read permissions for {mdb_file}. Skipping.")
+            continue
+
+        # Convert to CSV
+        mdb_to_csv(mdb_path, current_directory)
+
+        csv_files = [f for f in os.listdir(current_directory) if f.endswith('.csv') and not os.path.exists(os.path.join(current_directory, 'done', f))]
+
+        for csv_file in csv_files:
+            print(f"Splitting {csv_file}...")
+            
+            # Split CSV based on user's choice
+            if choice == 's':
+                split_csv(csv_file, size_limit=size, output_name_template=csv_file.replace('.csv', '_%s.csv'))
+            elif choice == 'l':
+                split_csv(csv_file, row_limit=lines, output_name_template=csv_file.replace('.csv', '_%s.csv'))
+
+        # Move mdb and original csv to "done" folder
+        done_dir = os.path.join(current_directory, 'done')
+        if not os.path.exists(done_dir):
+            os.makedirs(done_dir)
+        shutil.move(mdb_path, done_dir)
+        for csv_file in csv_files:
+            shutil.move(csv_file, done_dir)
 
 if __name__ == "__main__":
-    base_dir = os.path.dirname(os.path.realpath(__file__))
-
-    desired_size_str = input("Enter the desired size of split files in bytes (for text files): ")
-    desired_size = int(desired_size_str)
-
-    row_limit_str = input("Enter the maximum number of rows for each split Excel file: ")
-    row_limit = int(row_limit_str)
-
-    keep_header_str = input("Do you want to keep the file header in each split text file? (yes/no): ")
-    keep_header = keep_header_str.lower().startswith("y")
-
-    base_output_dir = os.path.join(base_dir, "splitfiles")
-    os.makedirs(base_output_dir, exist_ok=True)
-
-    for category in ['Documents', 'Databases']:
-        dir_path = os.path.join(base_dir, f"Sorted {category}")
-        if os.path.exists(dir_path):
-            for filename in os.listdir(dir_path):
-                filepath = os.path.join(dir_path, filename)
-                if os.path.isfile(filepath):
-                    ext = os.path.splitext(filename)[1].lower()
-                    if ext in ['.txt', '.csv']:
-                        split_text_file(filepath, base_output_dir, desired_size, keep_header)
-                    elif ext in ['.xls', '.xlsx']:
-                        split_excel_file(filepath, base_output_dir, row_limit)
-                    elif ext == '.mdb':
-                        split_mdb_file(filepath, base_output_dir, desired_size, keep_header)
-                    print(f"File '{filename}' split successfully. Check the {base_output_dir} directory.")
-        else:
-            print(f"Directory '{dir_path}' not found.")
+    main()

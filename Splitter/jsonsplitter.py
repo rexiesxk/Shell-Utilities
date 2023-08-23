@@ -6,7 +6,9 @@ This script splits huge json files running into GBs .
 
 It reads the file line by line instead of loading the file completely into memory.
 
-You also have an option of keepin the header in split files
+You also have an option of keeping the header in split files. 
+
+Keep the script and json file in same folder.
 
 @author: RexieSxK
 """
